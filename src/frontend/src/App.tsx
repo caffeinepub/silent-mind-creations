@@ -1341,6 +1341,11 @@ export default function App() {
         <AdminPage />
       ) : (
         <div className="min-h-screen bg-black" style={{ colorScheme: "dark" }}>
+          <div className="w-full bg-white text-black text-center py-2 px-4">
+            <p className="font-bold text-sm tracking-widest uppercase">
+              Silent Mind Creations | IN MY MIND &ndash; Official Film Website
+            </p>
+          </div>
           <Navbar />
           <main>
             <HeroSection />
