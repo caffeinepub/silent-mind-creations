@@ -2,12 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { Instagram, Loader2, Menu, X, Youtube } from "lucide-react";
+import { Instagram, Loader2, Lock, Menu, Play, X, Youtube } from "lucide-react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { SiX } from "react-icons/si";
 import { toast } from "sonner";
-import { useSubmitContactForm, useSubscribe } from "./hooks/useQueries";
+import {
+  useGetContactForms,
+  useSubmitContactForm,
+  useSubscribe,
+} from "./hooks/useQueries";
 
 /* ─── Fade-in wrapper ───────────────────────────────────────────────────── */
 function FadeIn({
@@ -68,6 +72,7 @@ function Navbar() {
   const navLinks = [
     { label: "Home", href: "#home" },
     { label: "The Film", href: "#film" },
+    { label: "Characters", href: "#characters" },
     { label: "About", href: "#about" },
     { label: "Contact", href: "#contact" },
   ];
@@ -318,6 +323,121 @@ function CountdownSection() {
   );
 }
 
+/* ─── Teaser Section ────────────────────────────────────────────────────── */
+function TeaserSection() {
+  const [revealed, setRevealed] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <section
+      id="teaser"
+      ref={ref}
+      className="relative bg-black py-0 overflow-hidden"
+    >
+      {/* Top / bottom cinematic letterbox lines */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-white/[0.06]" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/[0.06]" />
+
+      {/* Label */}
+      <motion.div
+        className="relative z-10 text-center pt-20 pb-10 px-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <p className="text-[10px] tracking-cinema uppercase text-white/30 font-body mb-3">
+          — Official Announcement —
+        </p>
+        <h2 className="font-display text-[clamp(2rem,6vw,4rem)] font-black text-white tracking-tight">
+          Watch The Teaser
+        </h2>
+        <div className="w-16 h-px bg-white/20 mx-auto mt-6" />
+      </motion.div>
+
+      {/* Video container */}
+      <motion.div
+        className="relative z-10 max-w-5xl mx-auto px-6 pb-20"
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={inView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="relative group">
+          {/* Corner accents */}
+          <div className="absolute -top-3 -left-3 w-8 h-8 border-l-2 border-t-2 border-white/30 z-10 pointer-events-none" />
+          <div className="absolute -top-3 -right-3 w-8 h-8 border-r-2 border-t-2 border-white/30 z-10 pointer-events-none" />
+          <div className="absolute -bottom-3 -left-3 w-8 h-8 border-l-2 border-b-2 border-white/30 z-10 pointer-events-none" />
+          <div className="absolute -bottom-3 -right-3 w-8 h-8 border-r-2 border-b-2 border-white/30 z-10 pointer-events-none" />
+
+          {/* Reveal overlay (before play) */}
+          <AnimatePresence>
+            {!revealed && (
+              <motion.div
+                key="overlay"
+                className="absolute inset-0 z-20 bg-black/80 flex flex-col items-center justify-center cursor-pointer group/play"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                onClick={() => setRevealed(true)}
+                data-ocid="teaser.canvas_target"
+              >
+                {/* Pulsing ring */}
+                <div className="relative flex items-center justify-center">
+                  <motion.div
+                    className="absolute w-28 h-28 rounded-full border border-white/15"
+                    animate={{ scale: [1, 1.35, 1], opacity: [0.4, 0, 0.4] }}
+                    transition={{
+                      repeat: Number.POSITIVE_INFINITY,
+                      duration: 2.5,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <motion.div
+                    className="absolute w-20 h-20 rounded-full border border-white/25"
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.1, 0.5] }}
+                    transition={{
+                      repeat: Number.POSITIVE_INFINITY,
+                      duration: 2.5,
+                      delay: 0.3,
+                      ease: "easeInOut",
+                    }}
+                  />
+                  <div className="relative w-16 h-16 rounded-full bg-white/10 border border-white/30 flex items-center justify-center group-hover/play:bg-white/20 transition-colors duration-300">
+                    <Play size={22} className="text-white ml-1" fill="white" />
+                  </div>
+                </div>
+                <p className="mt-6 text-[11px] tracking-cinema uppercase text-white/40 font-body">
+                  Play Teaser
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* 16:9 iframe */}
+          <div className="aspect-video w-full bg-black border border-white/[0.07] overflow-hidden">
+            <iframe
+              src={`https://www.youtube.com/embed/6CGRU4I2cCk${revealed ? "?autoplay=1&rel=0&modestbranding=1" : "?rel=0&modestbranding=1"}`}
+              title="In My Head — Official Announcement Teaser"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+
+        {/* Film title below video */}
+        <motion.p
+          className="text-center text-[10px] tracking-cinema uppercase text-white/20 font-body mt-8"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 1, delay: 0.6 }}
+        >
+          In My Head &mdash; Coming Christmas 2026
+        </motion.p>
+      </motion.div>
+    </section>
+  );
+}
+
 /* ─── Film Section ──────────────────────────────────────────────────────── */
 function FilmSection() {
   const details = [
@@ -401,6 +521,98 @@ function FilmSection() {
               </a>
             </div>
           </FadeIn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Characters Section ────────────────────────────────────────────────── */
+const characters = [
+  {
+    name: "AVINASH MISHRA",
+    tagline: "A man who hasn't slept in eleven days.",
+    bio: [
+      'Avinash Mishra is a 23-year-old corporate employee trapped in a life that feels mechanical and meaningless. Suffering from severe insomnia, he drifts through repetitive days and silent nights, convincing himself that he is "fine" while his mind slowly fractures.',
+      "Haunted by the childhood death of his younger sister—an accident he blames entirely on himself—Avinash carries a guilt he has never confronted. His parents' quiet emotional withdrawal left him feeling invisible and unworthy of forgiveness. Outwardly functional, inwardly collapsing, Avinash lives with a constant sense that his life has never truly begun.",
+      "When he meets a stranger who seems free of fear, control, and consequence, Avinash believes he has finally found someone who understands him. What begins as conversation soon becomes something far more dangerous.",
+    ],
+  },
+  {
+    name: "AVNEET MEHTA",
+    tagline: "The voice that turns guilt into action.",
+    bio: [
+      "Avneet Mehta appears in Avinash's life as everything Avinash wishes he could be—confident, composed, and effortlessly free. Calm and observant, Avneet listens without judgment and offers Avinash something he has never experienced before: the feeling of being seen.",
+      "Through a nightly ritual he calls The Confession Game, Avneet encourages honesty, confrontation, and ultimately rebellion against the rules that control ordinary life. Under his influence, harmless questions evolve into risky acts, and risky acts slowly transform into something irreversible.",
+      "To Avinash, Avneet is a guide toward freedom and meaning. But the deeper the game goes, the more it becomes clear that Avneet may not be guiding Avinash at all. He may simply be giving form to the darkness already inside him.",
+    ],
+  },
+  {
+    name: "ANAMIKA MALHOTRA",
+    tagline: "The one person who sees the truth.",
+    bio: [
+      "Anamika Malhotra is the police officer investigating a series of disturbing murders that seem less like crimes and more like judgments. Analytical and patient, she notices patterns others overlook—motives that suggest something psychological rather than purely violent.",
+      "Unlike the world that has ignored Avinash his entire life, Anamika looks at people closely, trying to understand them rather than reduce them to labels.",
+      "When she finally confronts Avinash, she doesn't threaten him. She speaks to him like a human being. For the first time, Avinash is forced to face the possibility that the monster he has been chasing may have been inside him all along.",
+    ],
+  },
+];
+
+function CharactersSection() {
+  return (
+    <section
+      id="characters"
+      className="py-24 md:py-36 bg-[oklch(0.04_0_0)] border-t border-white/5"
+    >
+      <div className="max-w-7xl mx-auto px-6">
+        <FadeIn>
+          <p className="text-[10px] tracking-cinema uppercase text-white/25 font-body mb-4 text-center">
+            — The Characters —
+          </p>
+          <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-black text-white text-center tracking-tight mb-20">
+            Meet The Cast
+          </h2>
+        </FadeIn>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/[0.04]">
+          {characters.map((char, i) => (
+            <FadeIn key={char.name} delay={i * 0.15}>
+              <div
+                className="bg-[oklch(0.04_0_0)] p-8 md:p-10 flex flex-col h-full group hover:bg-white/[0.02] transition-colors duration-500"
+                data-ocid={`characters.item.${i + 1}`}
+              >
+                {/* Number */}
+                <p className="font-display text-[4rem] font-black text-white/[0.04] leading-none mb-6 select-none">
+                  0{i + 1}
+                </p>
+
+                {/* Divider */}
+                <div className="w-8 h-px bg-white/20 mb-6" />
+
+                {/* Name */}
+                <h3 className="font-display text-2xl md:text-3xl font-black text-white tracking-tight mb-3">
+                  {char.name}
+                </h3>
+
+                {/* Tagline */}
+                <p className="text-[11px] tracking-cinema uppercase text-white/35 font-body font-medium mb-8 italic">
+                  {char.tagline}
+                </p>
+
+                {/* Bio */}
+                <div className="flex flex-col gap-4 flex-1">
+                  {char.bio.map((para, j) => (
+                    <p
+                      key={`${char.name}-bio-${j}`}
+                      className="font-body text-sm text-white/50 leading-relaxed"
+                    >
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </FadeIn>
+          ))}
         </div>
       </div>
     </section>
@@ -810,19 +1022,21 @@ function Footer() {
 
           {/* Nav Links */}
           <nav className="flex items-center gap-6">
-            {["Home", "The Film", "About", "Contact"].map((label) => {
-              const href = `#${label.toLowerCase().replace("the film", "film")}`;
-              return (
-                <a
-                  key={label}
-                  href={href}
-                  data-ocid="footer.link"
-                  className="text-[10px] tracking-cinema uppercase text-white/25 hover:text-white/60 transition-colors font-body"
-                >
-                  {label}
-                </a>
-              );
-            })}
+            {["Home", "The Film", "Characters", "About", "Contact"].map(
+              (label) => {
+                const href = `#${label.toLowerCase().replace(/ /g, "").replace("thefilm", "film")}`;
+                return (
+                  <a
+                    key={label}
+                    href={href}
+                    data-ocid="footer.link"
+                    className="text-[10px] tracking-cinema uppercase text-white/25 hover:text-white/60 transition-colors font-body"
+                  >
+                    {label}
+                  </a>
+                );
+              },
+            )}
           </nav>
 
           {/* Social Icons */}
@@ -882,21 +1096,265 @@ function Footer() {
   );
 }
 
-/* ─── App Root ──────────────────────────────────────────────────────────── */
-export default function App() {
+/* ─── Admin Page ────────────────────────────────────────────────────────── */
+const ADMIN_PASSWORD = "silentmind2025";
+
+function AdminPage() {
+  const [authed, setAuthed] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const { data: forms, isLoading } = useGetContactForms();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setAuthed(true);
+      setError(false);
+    } else {
+      setError(true);
+    }
+  };
+
+  if (!authed) {
+    return (
+      <div
+        className="min-h-screen bg-black flex items-center justify-center px-4"
+        style={{ colorScheme: "dark" }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-sm"
+        >
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="/assets/uploads/Screenshot-2026-02-03-at-2.36.58-PM-1.png"
+              alt="Silent Mind Creations"
+              className="h-14 w-auto object-contain opacity-80"
+            />
+          </div>
+
+          {/* Card */}
+          <div className="border border-white/10 bg-white/[0.02] p-8">
+            <h1 className="font-display text-2xl font-black text-white tracking-tight mb-1">
+              Admin Access
+            </h1>
+            <p className="text-white/35 font-body text-sm mb-8">
+              Enter the admin password to view inquiries.
+            </p>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="admin-password"
+                  className="block text-[10px] tracking-cinema uppercase text-white/30 font-body mb-2"
+                >
+                  Password
+                </label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(false);
+                  }}
+                  data-ocid="admin.password_input"
+                  placeholder="••••••••••••"
+                  autoComplete="current-password"
+                  className="bg-white/[0.02] border-white/10 text-white placeholder:text-white/15 font-body text-sm py-5 px-4 focus:border-white/30 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none w-full"
+                />
+              </div>
+
+              {error && (
+                <p
+                  className="text-red-400/80 text-xs font-body"
+                  data-ocid="admin.error_state"
+                  role="alert"
+                >
+                  Incorrect password. Please try again.
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                data-ocid="admin.submit_button"
+                className="w-full bg-white text-black hover:bg-white/90 font-body text-xs tracking-cinema uppercase font-semibold py-6 rounded-none border-0 transition-all duration-300"
+              >
+                Login
+              </Button>
+            </form>
+          </div>
+
+          {/* Back link */}
+          <p className="text-center mt-6">
+            <a
+              href="/"
+              className="text-[10px] tracking-cinema uppercase text-white/25 hover:text-white/50 transition-colors font-body"
+            >
+              ← Back to site
+            </a>
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  /* ── Inquiries View ── */
+  const sortedForms = forms
+    ? [...forms].sort((a, b) => Number(b.submittedAt - a.submittedAt))
+    : [];
+
   return (
     <div className="min-h-screen bg-black" style={{ colorScheme: "dark" }}>
-      <Toaster position="bottom-right" />
-      <Navbar />
-      <main>
-        <HeroSection />
-        <CountdownSection />
-        <FilmSection />
-        <AboutSection />
-        <NewsletterSection />
-        <ContactSection />
+      {/* Header bar */}
+      <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img
+              src="/assets/uploads/Screenshot-2026-02-03-at-2.36.58-PM-1.png"
+              alt="Silent Mind Creations"
+              className="h-8 w-auto object-contain opacity-70"
+            />
+            <div className="w-px h-5 bg-white/15" />
+            <h1 className="font-body text-sm font-semibold text-white/70 tracking-cinema uppercase">
+              Inquiries
+            </h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setAuthed(false);
+              setPassword("");
+            }}
+            data-ocid="admin.lock_button"
+            className="text-white/40 hover:text-white/80 hover:bg-white/5 rounded-none gap-2 font-body text-xs tracking-cinema uppercase"
+          >
+            <Lock size={13} />
+            Lock
+          </Button>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 py-10">
+        {isLoading ? (
+          <div
+            className="flex flex-col items-center justify-center py-24 gap-4"
+            data-ocid="admin.loading_state"
+          >
+            <Loader2 className="h-6 w-6 animate-spin text-white/30" />
+            <p className="text-white/30 font-body text-sm tracking-cinema uppercase text-[10px]">
+              Loading inquiries…
+            </p>
+          </div>
+        ) : sortedForms.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center py-24 gap-3 border border-white/[0.05] bg-white/[0.01]"
+            data-ocid="admin.empty_state"
+          >
+            <p className="font-display text-xl font-light text-white/30">
+              No inquiries yet
+            </p>
+            <p className="text-white/20 font-body text-sm">
+              Submitted contact forms will appear here.
+            </p>
+          </div>
+        ) : (
+          <>
+            <p className="text-[10px] tracking-cinema uppercase text-white/25 font-body mb-6">
+              {sortedForms.length}{" "}
+              {sortedForms.length === 1 ? "inquiry" : "inquiries"} received
+            </p>
+            <div
+              className="border border-white/[0.08] divide-y divide-white/[0.06]"
+              data-ocid="admin.table"
+            >
+              {sortedForms.map((form, i) => {
+                const ocidIndex = i + 1;
+                const dateMs = Number(form.submittedAt) / 1_000_000;
+                const dateStr = new Date(dateMs).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+                const ocid =
+                  ocidIndex <= 3
+                    ? (`admin.row.${ocidIndex}` as const)
+                    : undefined;
+
+                return (
+                  <motion.div
+                    key={`${form.email}-${form.submittedAt}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.04 }}
+                    className="bg-white/[0.01] hover:bg-white/[0.03] transition-colors p-6 grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-4"
+                    {...(ocid ? { "data-ocid": ocid } : {})}
+                  >
+                    {/* Left: meta */}
+                    <div className="space-y-2">
+                      <p className="font-body font-semibold text-white text-sm">
+                        {form.name}
+                      </p>
+                      <a
+                        href={`mailto:${form.email}`}
+                        className="font-body text-xs text-white/45 hover:text-white/70 transition-colors break-all"
+                      >
+                        {form.email}
+                      </a>
+                      <p className="font-body text-[10px] text-white/25 tracking-cinema uppercase">
+                        {dateStr}
+                      </p>
+                    </div>
+
+                    {/* Right: message */}
+                    <div className="md:border-l md:border-white/[0.06] md:pl-6">
+                      <p className="font-body text-sm text-white/60 leading-relaxed whitespace-pre-wrap break-words">
+                        {form.message}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </main>
-      <Footer />
     </div>
+  );
+}
+
+/* ─── App Root ──────────────────────────────────────────────────────────── */
+export default function App() {
+  const isAdmin =
+    typeof window !== "undefined" && window.location.pathname === "/admin";
+
+  return (
+    <>
+      <Toaster position="bottom-right" />
+      {isAdmin ? (
+        <AdminPage />
+      ) : (
+        <div className="min-h-screen bg-black" style={{ colorScheme: "dark" }}>
+          <Navbar />
+          <main>
+            <HeroSection />
+            <CountdownSection />
+            <TeaserSection />
+            <FilmSection />
+            <CharactersSection />
+            <AboutSection />
+            <NewsletterSection />
+            <ContactSection />
+          </main>
+          <Footer />
+        </div>
+      )}
+    </>
   );
 }

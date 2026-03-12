@@ -40,3 +40,15 @@ export function useSubmitContactForm() {
     },
   });
 }
+
+export function useGetContactForms() {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["contactForms"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getContactForms();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
